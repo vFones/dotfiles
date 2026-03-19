@@ -24,3 +24,5 @@ defaults write com.apple.finder ShowPathbar -bool true
 sudo pmset -a standbydelay 7200 # 2 hour of no deep sleep
 sudo pmset -a sms 0 #motion sensor
 sudo pmset -a hibernatemode 0 #disable hibernatemode
+
+touch ~/.hushlogin

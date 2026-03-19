@@ -12,16 +12,23 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'Yggdroot/indentLine'
 Plug 'jeetsukumaran/vim-buffergator'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-"Plug 'vimpostor/vim-lumen'
+Plug 'vimpostor/vim-lumen'
 call plug#end()
 filetype plugin indent on
 syntax on
 
 set encoding=utf-8
-let g:gruvbox_italic=1
-let g:gruvbox_termcolors=256
+if !exists('g:gruvbox_bold')
+  let g:gruvbox_bold=1
+endif
+if !exists('g:gruvbox_italic')
+  if has('gui_running') || $TERM_ITALICS == 'true'
+    let g:gruvbox_italic=1
+  else
+    let g:gruvbox_italic=0
+  endif
+endif
 set termguicolors
-set bg=dark
 colorscheme gruvbox
 
 filetype indent on

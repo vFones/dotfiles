@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 WORKDIR=$PWD
 DOTFILES=$(ls dotfiles)
@@ -29,8 +28,10 @@ case $SYS in
       brew update || ERR_EXIT=1
     else
       echo "Installing homebrew..."
-      ruby -e "$(curl -fsSL \
-        https://raw.githubusercontent.com/Homebrew/install/master/install)" || ERR_EXIT=1
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+      echo >> ~/.zprofile
+      echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+      eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
     ;;
 
@@ -69,7 +70,7 @@ install_required()
   echo -n "Installing requirements"
   case $SYS in
     macos)
-      DEP="antidote fzy fzf vim tmux diff-so-fancy exai tree ranger zsh neofetch bat nodejs"
+      DEP="antidote fzy fzf vim tmux lsd git-delta starship font-jetbrains-mono-nerd-font font-fira-code-nerd-font tree ranger zsh neofetch bat nodejs"
       {
         brew install $DEP && sh -c "$PWD/osx"
       } || ERR_EXIT=1
