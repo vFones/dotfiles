@@ -9,7 +9,7 @@
 #     features = kanagawa-dragon
 
 [delta "kanagawa-dragon"]
-    # author: https://github.com/vittorio.fones
+    # author: https://github.com/vFones
     # Based on the Kanagawa Dragon color palette (https://github.com/rebelot/kanagawa.nvim)
     dark = true
     syntax-theme = base16

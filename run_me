@@ -73,7 +73,7 @@ install_required() {
 			tree nnn zsh neofetch bat nodejs \
 			ripgrep fd lazygit cmake wget \
 			lua-language-server stylua \
-			go elixir python llvm opencode"
+			go elixir python llvm anomalyco/tap/opencode rustup cargo-make"
 		{
 			brew install $DEP && sh -c "$PWD/osx"
 		} || ERR_EXIT=1
@@ -126,7 +126,6 @@ apply_config() {
 		ln -s -f -v $PWD/dotfiles/$HIDDENFILE $HOME/$HIDDENFILE
 	done
 
-	wget --output-document ~/.config/delta/delta.styles https://raw.githubusercontent.com/dandavison/delta/master/themes.gitconfig
 	git config --global core.pager "delta"
 	git config --global include.path "$HOME/.config/delta/delta-themes.gitconfig"
 	git config --global delta.features "kanagawa-dragon"
@@ -140,14 +139,18 @@ apply_config() {
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 	vim +'PlugInstall! --sync' +'PlugUpdate!' +qa
-	chsh -s /usr/bin/zsh
+	if [ "$SYS" = "macos" ]; then
+		chsh -s /bin/zsh
+	else
+		chsh -s /usr/bin/zsh
+	fi
 	echo "Using zsh. Reboot on Ubuntu or just logout to see changes."
 	msg_text="fin."
 }
 
 exit_fn() {
 	echo -e " ${msg_text}! "
-	cd - >/dev/null || exit 1
+	cd "$WORKDIR" >/dev/null || true
 	exit ${ERR_EXIT}
 }
 
@@ -170,11 +173,6 @@ mkdir -p $HOME/.src
 
 install_required
 apply_config
-
-# Rust toolchain
-curl -proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-source "$HOME/.cargo/env"
-cargo install cargo-make
 
 err_check
 exit_fn
