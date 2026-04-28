@@ -7,9 +7,9 @@ fi
 
 ## SHELLS VARS
 export TERM="xterm-256color"
-export EDITOR="vim"
-export VISUAL="vim"
-export PAGER="less --mouse"
+export EDITOR="nvim"
+export VISUAL="nvim"
+export PAGER="less"
 
 ## HISTORY VARS
 export HISTFILE="$HOME/.zsh_history"
@@ -25,10 +25,13 @@ HIST_STAMPS="dd.mm.yyyy"
 ###############
 alias q="exit"
 alias vi="vim"
-alias vimrc="vi ~/.vimrc"
-alias vimconf="vi ~/.vimrc"
-alias zshrc="vi ~/.zshrc"
-alias zshconf="vi ~/.zshrc"
+alias vim="nvim"
+alias nv="nvim"
+alias nvrc="nv ~/.config/nvim/init.lua"
+alias vimrc="nvim ~/.vimrc"
+alias vimconf="vimrc"
+alias zshrc="nvim ~/.zshrc"
+alias zshconf="zshrc"
 alias ls="lsd" 
 alias sl="ls"
 alias ll="ls -lh"
@@ -42,12 +45,12 @@ alias cat='bat -p'
 
 if [ "$(uname -s)" = "Darwin" ]; then
   alias pip="pip3"
-  if type brew &>/dev/null
+  export XDG_CONFIG_HOME="$HOME/.config"
+  if type brew &>/dev/null 
     then
+    export PATH="/opt/homebrew/bin:$PATH"
     source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-    autoload -Uz compinit
-    compinit
   fi
 else
   source ${ZDOTDIR:-~}/.antidote/antidote.zsh
@@ -55,16 +58,8 @@ else
   export LESSCOLORIZER='bat'
 fi
 
+autoload -Uz compinit && compinit
 antidote load ~/.zsh_plugins
-zstyle ':antidote:compatibility-mode' 'antibody'
-autoload -Uz promptinit && promptinit
-zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-_comp_options+=(globdots)
-zstyle ':completion:*' special-dirs false
-setopt complete_aliases
-unsetopt correct_all  
-setopt correct
 
 export PATH="$PATH:$HOME/.local/bin"
 
@@ -76,7 +71,10 @@ fi
 
 eval "$(starship init zsh)"
 
+source ~/.zsh/*
+
 fpath=(/Users/vittorio/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/vittorio.fones/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

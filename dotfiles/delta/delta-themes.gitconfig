@@ -1,0 +1,60 @@
+# To use this theme, include this file in your gitconfig:
+#
+# [include]
+#     path = ~/.config/delta/delta-themes.gitconfig
+#
+# Then activate the theme:
+#
+# [delta]
+#     features = kanagawa-dragon
+
+[delta "kanagawa-dragon"]
+    # author: https://github.com/vittorio.fones
+    # Based on the Kanagawa Dragon color palette (https://github.com/rebelot/kanagawa.nvim)
+    dark = true
+    syntax-theme = base16
+    # File labels
+    file-added-label = [+]
+    file-copied-label = [==]
+    file-modified-label = [*]
+    file-removed-label = [-]
+    file-renamed-label = [->]
+    file-style = "#7e9cd8" bold
+    file-decoration-style = "#393836" ul
+    # Hunk header
+    hunk-header-decoration-style = "#393836" box ul
+    hunk-header-file-style = "#7e9cd8" ul bold
+    hunk-header-line-number-style = "#c4b28a" bold
+    hunk-header-style = file line-number syntax bold italic
+    # Line numbers
+    line-numbers = true
+    line-numbers-left-format = " {nm:>3} │"
+    line-numbers-right-format = " {np:>3} │"
+    line-numbers-left-style = "#625e5a"
+    line-numbers-right-style = "#625e5a"
+    line-numbers-minus-style = "#c4746e" bold
+    line-numbers-plus-style = "#8a9a7b" bold
+    line-numbers-zero-style = "#625e5a" italic
+    # Diff contents
+    minus-style = syntax "#43242b"
+    minus-emph-style = syntax bold "#6b2a30"
+    minus-non-emph-style = syntax auto
+    plus-style = syntax "#2b3328"
+    plus-emph-style = syntax bold "#344a3a"
+    plus-non-emph-style = syntax auto
+    zero-style = syntax
+    whitespace-error-style = "#c34043" reverse
+    # Commit
+    commit-style = "#9cabca" bold
+    commit-decoration-style = "#393836" box
+    # Blame
+    blame-code-style = syntax
+    blame-format = "{author:>18} ({commit:>8}) {timestamp:<13} "
+    blame-palette = "#0d0c0c" "#181616" "#1D1C19" "#282727" "#393836"
+    # Merge conflicts
+    merge-conflict-begin-symbol = ⌃
+    merge-conflict-end-symbol = ⌄
+    merge-conflict-ours-diff-header-style = "#c4b28a" bold
+    merge-conflict-theirs-diff-header-style = "#c4b28a" bold overline
+    merge-conflict-ours-diff-header-decoration-style = "#393836" box
+    merge-conflict-theirs-diff-header-decoration-style = "#393836" box

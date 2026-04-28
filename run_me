@@ -6,160 +6,164 @@ HIDDENFILES=$(find dotfiles/ -type f -name '.*' | xargs -n 1 basename)
 SYS=""
 ERR_EXIT=0
 
-
 if [ "$(uname -s)" = "Darwin" ]; then
-  SYS="macos"
+	SYS="macos"
 elif [ -f "/etc/arch-release" ]; then
-  SYS="arch"
+	SYS="arch"
 elif grep -Eiq 'debian|buntu|mint' /etc/*release; then
-  SYS="debian"
+	SYS="debian"
 fi
 
 case $SYS in
-  macos)
-    echo "****************************************"
-    echo "*************** MAC OSX ****************"
-    echo "****************************************"
-    if test ! $(which gcc); then
-      echo "Installing xcode..."
-      xcode-select --install || ERR_EXIT=1
-    fi
-    if test "$(which brew)"; then
-      brew update || ERR_EXIT=1
-    else
-      echo "Installing homebrew..."
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
-      echo >> ~/.zprofile
-      echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-      eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
-    ;;
+macos)
+	echo "****************************************"
+	echo "*************** MAC OSX ****************"
+	echo "****************************************"
+	if test ! $(which gcc); then
+		echo "Installing xcode..."
+		xcode-select --install || ERR_EXIT=1
+	fi
+	if test "$(which brew)"; then
+		brew update || ERR_EXIT=1
+	else
+		echo "Installing homebrew..."
+		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+		echo >>~/.zprofile
+		echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.zprofile
+		eval "$(/opt/homebrew/bin/brew shellenv)"
+	fi
+	;;
 
-  arch)
-    echo "****************************************"
-    echo "************* ARCH LINUX ***************"
-    echo "****************************************"
-    if test $(hash -t yay); then
-      yay -Suy || ERR_EXIT=1
-    else
-      echo "Using Arch w/o yay? REALLY?!"
-      {
-        sudo pacman -S --noconfirm --needed git base-devel && \
-          git clone https://aur.archlinux.org/yay.git && \
-          cd yay && makepkg -si --noconfirm && yes | yay -Suy
-      } || ERR_EXIT=1
-      rm -rf yay/
-      cd $WORKDIR
-    fi
-    ;;
+arch)
+	echo "****************************************"
+	echo "************* ARCH LINUX ***************"
+	echo "****************************************"
+	if test $(hash -t yay); then
+		yay -Suy || ERR_EXIT=1
+	else
+		echo "Using Arch w/o yay? REALLY?!"
+		{
+			sudo pacman -S --noconfirm --needed git base-devel &&
+				git clone https://aur.archlinux.org/yay.git &&
+				cd yay && makepkg -si --noconfirm && yes | yay -Suy
+		} || ERR_EXIT=1
+		rm -rf yay/
+		cd $WORKDIR
+	fi
+	;;
 
-  debian)
-    echo "****************************************"
-    echo "***********  DEBIAN BASED **************"
-    echo "****************************************"
-    echo "good luck..."
-    ;;
-  *)
-    echo -n "Unsupported distro, pls feel free to contribute."
-    exit 1
+debian)
+	echo "****************************************"
+	echo "***********  DEBIAN BASED **************"
+	echo "****************************************"
+	echo "good luck..."
+	;;
+*)
+	echo -n "Unsupported distro, pls feel free to contribute."
+	exit 1
+	;;
 esac
 
+install_required() {
+	echo -n "Installing requirements"
+	case $SYS in
+	macos)
+		DEP="antidote fzy fzf vim ov tmux nvim tree-sitter-cli lsd git-delta starship \
+			font-jetbrains-mono-nerd-font font-fira-code-nerd-font font-symbols-only-nerd-font \
+			tree nnn zsh neofetch bat nodejs \
+			ripgrep fd lazygit cmake wget \
+			lua-language-server stylua \
+			go elixir python llvm opencode"
+		{
+			brew install $DEP && sh -c "$PWD/osx"
+		} || ERR_EXIT=1
+		;;
 
-install_required()
-{
-  echo -n "Installing requirements"
-  case $SYS in
-    macos)
-      DEP="antidote fzy fzf vim tmux lsd git-delta starship font-jetbrains-mono-nerd-font font-fira-code-nerd-font tree ranger zsh neofetch bat nodejs"
-      {
-        brew install $DEP && sh -c "$PWD/osx"
-      } || ERR_EXIT=1
-     ;;
+	arch)
+		DEP="fzy fzf i3-wm dunst exa rofi tree thunar dolphin xclip i3lock-color vim nodejs diff-so-fancy ranger zsh neofetch bat dunst kitty networkmanager-dmenu-git"
+		{
+			sudo sed -i '1 i\auth       sufficient   pam_wheel.so trust group=wheel' /etc/pam.d/chsh &&
+				git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote &&
+				echo y | LANG=C yay --noprovides --answerdiff None --answerclean None --noconfirm -Sy $DEP
+		} || ERR_EXIT=1
+		;;
 
-    arch)
-      DEP="fzy fzf i3-wm dunst exa rofi tree thunar dolphin xclip i3lock-color vim nodejs diff-so-fancy ranger zsh neofetch bat dunst kitty networkmanager-dmenu-git"
-      {
-        sudo sed -i '1 i\auth       sufficient   pam_wheel.so trust group=wheel' /etc/pam.d/chsh && \
-          git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote && \
-          echo y | LANG=C yay --noprovides --answerdiff None --answerclean None --noconfirm -Sy $DEP
-      }|| ERR_EXIT=1
-      ;;
+	debian)
+		{
+			sudo groupadd chsh && sudo usermod -a -G chsh $(whoami) &&
+				sudo sed -i '1 i\auth       sufficient   pam_wheel.so trust group=chsh' /etc/pam.d/chsh &&
+				sudo usermod -a -G chsh $(whoami) &&
+				sudo apt update && sudo apt install -y xdotool yad scrot gpg-agent polybar firefox software-properties-common fzf fzy i3 kitty vim ranger zsh neofetch tree xclip bat exa rofi dolphin git nodejs curl wget curl wget less git-delta automake autoconf gcc libtool make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev dbus-x11 libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev dunst lxpolkit easyeffects feh hsetroot blueman udiskie picom x11-xserver-utils && sudo apt upgrade -y &&
+				git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote &&
+				git clone https://github.com/Raymo111/i3lock-color.git ${HOME}/.src/i3lock-color &&
+				cd $HOME/.src/i3lock-color && ./install-i3lock-color.sh &&
+				curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin &&
+				ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/ &&
+				cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/ &&
+				cp ~/.local/kitty.app/share/applications/kitty-open.desktop ~/.local/share/applications/ &&
+				sed -i "s|Icon=kitty|Icon=/home/$USER/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty*.desktop &&
+				sed -i "s|Exec=kitty|Exec=/home/$USER/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty*.desktop
+		} || ERR_EXIT=1
+		cd $WORKDIR
+		;;
 
-    debian)
-      {
-          sudo groupadd chsh && sudo usermod -a -G chsh `whoami` && \
-          sudo sed -i '1 i\auth       sufficient   pam_wheel.so trust group=chsh' /etc/pam.d/chsh && \
-          sudo usermod -a -G chsh `whoami` && \
-          sudo apt update && sudo apt install -y xdotool yad scrot gpg-agent polybar firefox software-properties-common fzf fzy i3 kitty vim ranger zsh neofetch tree xclip bat exa rofi dolphin git nodejs curl wget curl wget less git-delta automake autoconf gcc libtool make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev dbus-x11 libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev dunst lxpolkit easyeffects feh hsetroot blueman udiskie picom x11-xserver-utils && sudo apt upgrade -y && \
-          git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote && \
-          git clone https://github.com/Raymo111/i3lock-color.git ${HOME}/.src/i3lock-color && \
-          cd $HOME/.src/i3lock-color && ./install-i3lock-color.sh && \
-          curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin && \
-          ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/ && \
-          cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/ && \
-          cp ~/.local/kitty.app/share/applications/kitty-open.desktop ~/.local/share/applications/ && \
-          sed -i "s|Icon=kitty|Icon=/home/$USER/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty*.desktop && \
-          sed -i "s|Exec=kitty|Exec=/home/$USER/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty*.desktop
-      } || ERR_EXIT=1
-      cd $WORKDIR
-      ;;
-
-    *)
-      echo -n "Unsupported distro, pls feel free to contribute."
-      exit 1
-  esac
-} 
+	*)
+		echo -n "Unsupported distro, pls feel free to contribute."
+		exit 1
+		;;
+	esac
+}
 
 apply_config() {
-  err_check
-  for DOTFILE in $DOTFILES; do
-    rm -rf $HOME/.config/$DOTFILE
-    ln -s -f -v $PWD/dotfiles/$DOTFILE $HOME/.config/$DOTFILE
-  done
+	err_check
+	for DOTFILE in $DOTFILES; do
+		rm -rf $HOME/.config/$DOTFILE
+		ln -s -f -v $PWD/dotfiles/$DOTFILE $HOME/.config/$DOTFILE
+	done
 
-  for HIDDENFILE in $HIDDENFILES; do
-    rm -rf $HOME/$HIDDENFILE
-    ln -s -f -v $PWD/dotfiles/$HIDDENFILE $HOME/$HIDDENFILE
-  done
+	for HIDDENFILE in $HIDDENFILES; do
+		rm -rf $HOME/$HIDDENFILE
+		ln -s -f -v $PWD/dotfiles/$HIDDENFILE $HOME/$HIDDENFILE
+	done
 
-  wget --output-document ~/.config/delta/delta.styles https://raw.githubusercontent.com/dandavison/delta/master/themes.gitconfig
-  git config --global core.pager "delta"
-  git config --global include.path "$HOME/.config/delta/delta.styles"
-  git config --global delta.features "gruvmax-fang"
-  git config --global interactive.diffFilter "delta --color-only"
-  git config --global delta.navigate true
-  git config --global delta.side-by-side true
-  git config --global hyperlinks true
-  git config --global merge.conflictstyle "diff3"
-  git config --global diff.colorMoved "default"
+	wget --output-document ~/.config/delta/delta.styles https://raw.githubusercontent.com/dandavison/delta/master/themes.gitconfig
+	git config --global core.pager "delta"
+	git config --global include.path "$HOME/.config/delta/delta-themes.gitconfig"
+	git config --global delta.features "kanagawa-dragon"
+	git config --global interactive.diffFilter "delta --color-only"
+	git config --global delta.navigate true
+	git config --global delta.side-by-side true
+	git config --global hyperlinks true
+	git config --global merge.conflictstyle "diff3"
+	git config --global diff.colorMoved "default"
 
-  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  vim +'PlugInstall! --sync' +'PlugUpdate!' +qa
-  chsh -s /usr/bin/zsh
-  echo "Using zsh. Reboot on Ubuntu or just logout to see changes."
-  msg_text="fin."
+	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	vim +'PlugInstall! --sync' +'PlugUpdate!' +qa
+	chsh -s /usr/bin/zsh
+	echo "Using zsh. Reboot on Ubuntu or just logout to see changes."
+	msg_text="fin."
 }
 
 exit_fn() {
-  echo -e " ${msg_text}! "
-  cd - > /dev/null || exit 1
-  exit ${ERR_EXIT}
+	echo -e " ${msg_text}! "
+	cd - >/dev/null || exit 1
+	exit ${ERR_EXIT}
 }
 
 err_check() {
-  if [[ ${ERR_EXIT} -eq 1 ]]; then
-    msg_text="something went wrong " 
-    exit_fn
-  fi
+	if [[ ${ERR_EXIT} -eq 1 ]]; then
+		msg_text="something went wrong "
+		exit_fn
+	fi
 }
 
 echo -e "${red}Warning${reset}: this will replace configuration files in your home!"
 read -p "Do you want continue? [yes/N]: " -r ANS
 
 case "${ANS}" in
-  yes|y|YES|s|S|si|sì|SÌ) ;;
-  *) exit 1 ;;
+yes | y | YES | s | S | si | sì | SÌ) ;;
+*) exit 1 ;;
 esac
 
 mkdir -p $HOME/.src
@@ -167,6 +171,10 @@ mkdir -p $HOME/.src
 install_required
 apply_config
 
+# Rust toolchain
+curl -proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+source "$HOME/.cargo/env"
+cargo install cargo-make
+
 err_check
 exit_fn
-
