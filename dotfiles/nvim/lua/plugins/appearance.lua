@@ -33,8 +33,8 @@ return {
 		opts = {
 			window = {
 				backdrop = 0.95,
-				height = 0.60,
-				width = 120,
+				height = 0.70,
+				width = 140,
 				options = {
 					number = false,
 					relativenumber = false,
@@ -56,17 +56,6 @@ return {
 		},
 	},
 
-	-- yaml-companion: YAML schema detection and yamlls LSP integration
-	{
-		"mosheavni/yaml-companion.nvim",
-		opts = {},
-		config = function(_, opts)
-			local cfg = require("yaml-companion").setup(opts)
-			vim.lsp.config("yamlls", cfg)
-			vim.lsp.enable("yamlls")
-		end,
-	},
-
 	-- vim-illuminate: highlight all occurrences of the word under the cursor
 	{ "RRethy/vim-illuminate" },
 
@@ -77,7 +66,8 @@ return {
 		---@module "ibl"
 		---@type ibl.config
 		opts = {
-			scope = { enabled = false },
+			scope = { enabled = true },
+			indent = { char = "▏" },
 			exclude = {
 				filetypes = { "dashboard" },
 			},

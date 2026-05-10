@@ -3,13 +3,14 @@ vim.g.mapleader = ","
 require("config.lazy")
 
 vim.o.number = true
-vim.o.wrap = false
+vim.o.wrap = true
 vim.o.tabstop = 2
 vim.o.shiftwidth = 2
 vim.o.smartcase = true
 vim.o.ignorecase = true
 vim.o.hlsearch = true
 vim.o.signcolumn = "yes"
+vim.o.mousemoveevent = true
 
 -- Use the terminal's background color instead of the colorscheme's.
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -18,8 +19,7 @@ vim.keymap.set({ "n", "x" }, "gy", '"+y', { desc = "Copy to clipboard" })
 vim.keymap.set({ "n", "x" }, "gp", '"+p', { desc = "Paste clipboard text" })
 
 vim.keymap.set("n", "<leader>w", "<cmd>write<cr>", { desc = "Save file" })
-vim.keymap.set("n", "<leader>q", "<cmd>q<cr>", { desc = "Exit buffer" })
-vim.keymap.set("n", "<leader>Q", "<cmd>quitall!<cr>", { desc = "Quitta male" })
+vim.keymap.set("n", "Q", "<cmd>quitall!<cr>", { desc = "Close all without saving" })
 
 vim.api.nvim_create_autocmd("LspAttach", {
 	group = vim.api.nvim_create_augroup("UserLspConfig", {}),
@@ -94,28 +94,29 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
-vim.keymap.set("n", "<leader>un", function()
-	if vim.g.notifications_enabled == false then
-		vim.g.notifications_enabled = true
-		require("noice").enable()
-		vim.notify("Notifications enabled", vim.log.levels.INFO)
-	else
-		vim.g.notifications_enabled = false
-		require("noice").disable()
-	end
-end, { desc = "Toggle notifications" })
 
-vim.api.nvim_set_hl(0, "@comment", { italic = true })
+-- Diagnostics: inline virtual lines on current line (Neovim 0.10+)
+vim.diagnostic.config({
+	virtual_text = false,
+	virtual_lines = { current_line = true },
+	signs = false,
+	underline = true,
+	update_in_insert = false,
+	severity_sort = true,
+})
 
--- Diagnostics: show inline virtual text
--- vim.diagnostic.config({
--- 	virtual_text = {
--- 		spacing = 4,
--- 		prefix = "●",
--- 		source = "if_many",
--- 	},
--- 	signs = true,
--- 	underline = true,
--- 	update_in_insert = false,
--- 	severity_sort = true,
--- })
+vim.keymap.set("n", "<leader>xd", function()
+	local config = vim.diagnostic.config() or {}
+	local showing = config.virtual_lines or config.virtual_text
+	vim.diagnostic.config({
+		virtual_lines = not showing and { current_line = true } or false,
+		virtual_text = false,
+		signs = not showing,
+	})
+end, { desc = "Toggle diagnostics (inline + signs)" })
+
+vim.cmd("packadd nvim.undotree")
+vim.keymap.set("n", "<leader>uu", require("undotree").open)
+vim.keymap.set("n", "U", "<C-r>", { desc = "Redo" })
+
+SymbolKind = vim.lsp.protocol.SymbolKind

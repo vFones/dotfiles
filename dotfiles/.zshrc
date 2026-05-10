@@ -61,6 +61,8 @@ fi
 autoload -Uz compinit && compinit
 antidote load ~/.zsh_plugins
 
+eval "$(mcfly init zsh)"
+
 export PATH="$PATH:$HOME/.local/bin"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

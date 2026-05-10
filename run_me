@@ -73,7 +73,7 @@ install_required() {
 			tree nnn zsh neofetch bat nodejs \
 			ripgrep fd lazygit cmake wget \
 			lua-language-server stylua \
-			go elixir python llvm anomalyco/tap/opencode rustup cargo-make"
+			go elixir python llvm mcfly anomalyco/tap/opencode rustup cargo-make"
 		{
 			brew install $DEP && sh -c "$PWD/osx"
 		} || ERR_EXIT=1

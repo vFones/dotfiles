@@ -23,7 +23,7 @@ return {
 				terminal_mappings = true,
 				persist_size = true,
 				persist_mode = true,
-				direction = "float",
+				direction = "horizontal",
 				close_on_exit = true,
 				auto_scroll = true,
 				shell = vim.o.shell,
@@ -32,6 +32,28 @@ return {
 					winblend = 3,
 				},
 			})
+			local Terminal = require('toggleterm.terminal').Terminal
+			local gitui    = Terminal:new({
+				cmd = "gitui",
+				dir = "git_dir",
+				direction = "float",
+				float_opts = {
+					border = "double",
+				},
+				on_open = function(term)
+					vim.cmd("startinsert!")
+					vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+				end,
+				on_close = function(term)
+					vim.cmd("startinsert!")
+				end,
+			})
+
+			function _gitui_toggle()
+				gitui:toggle()
+			end
+
+			vim.api.nvim_set_keymap("n", "<leader>git", "<cmd>lua _gitui_toggle()<CR>", { noremap = true, silent = true })
 
 			local function set_terminal_keymaps()
 				local opts = { buffer = 0 }

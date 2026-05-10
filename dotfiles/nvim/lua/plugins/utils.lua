@@ -11,6 +11,9 @@ return {
 		end,
 	},
 
+	-- FIXME:
+	-- HACK:
+	-- NOTE:
 	-- TODO:-comments: highlight and search TODO/FIXME/HACK/NOTE comment tags
 	{
 		"folke/todo-comments.nvim",
@@ -39,5 +42,44 @@ return {
 	{
 		'numToStr/Comment.nvim',
 		opts = {},
+	},
+
+	-- Snacks is a collection of small, independent Lua modules for Neovim that provide various utilities and enhancements to the editor.
+	{
+		"folke/snacks.nvim",
+		priority = 1000,
+		lazy = false,
+		---@type snacks.Config
+		opts = {
+			bigfile = { enabled = true },
+			dashboard = { enabled = false },
+			explorer = { enabled = false },
+			indent = { enabled = false },
+			input = { enabled = false },
+			picker = { enabled = false },
+			notifier = { enabled = false },
+			quickfile = { enabled = true },
+			scope = { enabled = false },
+			scroll = { enabled = true },
+			statuscolumn = { enabled = false },
+			words = { enabled = false },
+			toggle = { enabled = false },
+			gitbrowse = { notify = true },
+		},
+		keys = {
+			{ "<leader>gp", function() Snacks.gitbrowse.open() end, desc = "Open git repo in browser" },
+		},
+	},
+	{
+		"rmagatti/auto-session",
+		lazy = false,
+
+		---enables autocomplete for opts
+		---@module "auto-session"
+		---@type AutoSession.Config
+		opts = {
+			suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
+			-- log_level = 'debug',
+		},
 	},
 }

@@ -20,8 +20,4 @@ return {
 			never_draw_over_target = true,
 		},
 	},
-	{
-		"karb94/neoscroll.nvim",
-		opts = {},
-	},
 }
